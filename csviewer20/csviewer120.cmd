@@ -1,0 +1,2 @@
+set path=%path%;.\jdk-11.0.17+8-jre\bin
+java -classpath .\bin;.\lib\commons-csv-1.10.0.jar;.\lib\commons-math4-core-4.0-beta1;.\lib\commons-math4-legacy-4.0-beta1;.\lib\commons-math4-legacy-core-4.0-beta1;.\lib\commons-math4-legacy-exception-4.0-beta1;.\lib\jfreechart-1.5.0.jar;.\lib\joinery-dataframe-1.10-jar-with-dependencies.jar org.csviewer.main.CSVFlashScreen
