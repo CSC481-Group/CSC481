@@ -6,12 +6,12 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/sanel/Downloads/csviewer20/csviewer20/lib/commons-csv-1.10.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/sanel/Downloads/csviewer20/csviewer20/lib/commons-math4-core-4.0-beta1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/sanel/Downloads/csviewer20/csviewer20/lib/commons-math4-legacy-4.0-beta1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/sanel/Downloads/csviewer20/csviewer20/lib/commons-math4-legacy-core-4.0-beta1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/sanel/Downloads/csviewer20/csviewer20/lib/commons-math4-legacy-exception-4.0-beta1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/sanel/Downloads/csviewer20/csviewer20/lib/jfreechart-1.5.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/sanel/Downloads/csviewer20/csviewer20/lib/joinery-dataframe-1.10-jar-with-dependencies.jar"/>
+	<classpathentry kind="lib" path="lib/commons-csv-1.10.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math4-core-4.0-beta1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math4-legacy-4.0-beta1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math4-legacy-core-4.0-beta1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math4-legacy-exception-4.0-beta1.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/joinery-dataframe-1.10-jar-with-dependencies.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
