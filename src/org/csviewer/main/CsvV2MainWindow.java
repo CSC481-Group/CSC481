@@ -139,7 +139,9 @@ public class CsvV2MainWindow extends JFrame {
 		createFamilyMenu(); 
 
 		createMeasureMenu(); 
-
+		 
+		createPathologyMenu(); 
+		
 		createAnalyticsMenu(); 
 
         // building the Window menu
@@ -292,7 +294,60 @@ public class CsvV2MainWindow extends JFrame {
 		}
 
 	}
-
+    
+    private void createPathologyMenu() {
+    	JMenu jmPathology = new JMenu("Pathology");
+    	// The pathology menu lets you show a static image (based on behavior from the given v12 
+    	//	bundle *NOT* the given source code! they differ. not sure they're supposed to.)
+    	JMenuItem pathologyShowPhotos = new JMenuItem("Show Photos");
+    	
+    	pathologyShowPhotos.addActionListener(new ActionListener() {
+    		@Override
+    		public void actionPerformed(ActionEvent e) {
+    			openPathologyTab();
+    		}
+    	});
+    	// add menu item to pathology menu
+    	jmPathology.add(pathologyShowPhotos);
+    	// add pathology menu to global menu bar
+    	jmb.add(jmPathology);
+    }
+    
+    private void openPathologyTab() {
+    	
+    	String tabLabel = "Pathology: Bone Defect";
+    	// Used to check if the tab is already open. 
+    	int idx = cPanel.indexOfTab(tabLabel);
+    	
+    	// if it is open already (i.e., it exists; does not return -1) then switch to it
+    	if (idx != -1) {
+    		cPanel.setSelectedIndex(idx);
+    		return;
+    	}
+    	
+    	// else, we have to make it. 
+    	JPanel imagePanel = new JPanel(new BorderLayout());
+    	// this image is pulled from the bundle; it's 3036 x 2388 native resolution so we have to scale it
+    	ImageIcon OGIcon = new ImageIcon("images/#1229 Femur.jpg");
+    	Image OGImage = OGIcon.getImage();
+    	
+    	int targetWidth = 900;
+    	int targetHeight = 700;
+    	
+    	Image scaledImage = OGImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+    	JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
+   
+    	// center image within label
+    	imageLabel.setHorizontalAlignment(JLabel.CENTER);
+    	// center label within panel
+    	imagePanel.add(imageLabel, BorderLayout.CENTER);
+    	
+    	JScrollPane scrollPane = new JScrollPane(imagePanel);
+    	cPanel.addTab(tabLabel, scrollPane);
+    	// switch focus to newly created tab
+    	cPanel.setSelectedComponent(scrollPane);
+    	
+    }
 
 	private void createSearchMenu() {
         JMenu searchMenu = new JMenu("Search"); 
