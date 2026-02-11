@@ -141,6 +141,8 @@ public class CsvV2MainWindow extends JFrame {
 		createMeasureMenu(); 
 		 
 		createPathologyMenu(); 
+
+		createCatalogMenu();
 		
 		createAnalyticsMenu(); 
 
@@ -151,6 +153,26 @@ public class CsvV2MainWindow extends JFrame {
 		createHelpMenu(); 
 		
 		return jmb;
+	}
+
+	private void createCatalogMenu(){
+		JMenu catalogMenu = new JMenu("Catalog");
+		JMenuItem jmItem = new JMenuItem("Entries By Founder");
+        jmItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JPanel chartPanel = new JPanel();
+				chartPanel.add(new JLabel(
+						new ImageIcon("images/EntriesByFounder.png")));
+		        JScrollPane scrollPane = new JScrollPane(chartPanel);
+		        cPanel.addTab("EntriesByFounder", scrollPane);
+		        cPanel.setSelectedIndex(cPanel.getTabCount()-1);
+			}
+        	
+        });
+        catalogMenu.add(jmItem);
+        jmb.add(catalogMenu);
 	}
 
 	private void createAnalyticsMenu() {
@@ -735,3 +757,4 @@ public class CsvV2MainWindow extends JFrame {
 	}
 
 }
+
