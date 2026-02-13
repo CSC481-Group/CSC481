@@ -55,60 +55,50 @@ public class CsvV2MainWindow extends JFrame {
 	 */
 	private static final long serialVersionUID = -902805105670159122L;
 
-	public static final Image CS_VIEWER_LOGO = 
+	public static final Image CS_VIEWER_LOGO =
 			new ImageIcon("images/monkeyicon.png").getImage();
-	
+
 	private AnimalSummarytPanel bPanel;
-	//private JPanel bPanel;
 	private JTabbedPane cPanel;
 	private JPanel contentPane;
-	
+
 	protected ImageBlockPanel imageBlockPanel = new ImageBlockPanel();
-	
+
 	private FamilyInfoDAO mTreeDao = new FamilyInfoDAO();
 	private PatrilTreeDAO pTreeDao;
 	private SearchMgr sMgr = new SearchMgr(mTreeDao);
 
 	private MeasureTablePanel mPanel = new MeasureTablePanel();
-	
+
 	private BoneMeasureDAO boneMeasureDAO = new BoneMeasureDAO();
 	private BoneMeasureMgr bmMgr = new BoneMeasureMgr(boneMeasureDAO);
-	
+
 	private AnalyticsMgr aMgr = new AnalyticsMgr(sMgr, bmMgr);
-	//private AnalyticsMgr aMgr = new AnalyticsMgr(sMgr, boneMeasureDAO);
-	
+
 	ProjectMgr pMgr;
 
-	private JMenuBar  jmb;
+	private JMenuBar jmb;
 
 	public CsvV2MainWindow() {
 		super("CSViewer for Analysts - V2.0");
 		this.setIconImage(CS_VIEWER_LOGO);
-		//mTreeDao = new FamilyInfoDAO();
-		
+
 		JMenuBar jmb = prepareMenus();
-		
+
 		cPanel = new JTabbedPane();
-		//cPanel.setPreferredSize(new Dimension(480, 600));
-		//contentPane.add(cPanel);
-		/*
-		JPanel wPanel = new JPanel();
-		wPanel.add(new JLabel("Welcome"));
-		cPanel.addTab("Welcome", wPanel);
-		*/
+
 		initMainPanel();
-        addRightColumn();
+		addRightColumn();
+
 		bPanel = new AnimalSummarytPanel();
 		bPanel.add(new JLabel("Summary panel goes here..."));
 		contentPane.add(bPanel, BorderLayout.SOUTH);
-		
-		//this.add(contentPane);
+
 		contentPane.setPreferredSize(new Dimension(820, 600));
-		add(contentPane);   
+		add(contentPane);
 		this.setJMenuBar(jmb);
-		
+
 		this.pack();
-		//CsvV2MainWindow test = new CsvV2MainWindow();
 		setVisible(true);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -125,325 +115,332 @@ public class CsvV2MainWindow extends JFrame {
 		rightPanel.add(mPanel);
 		imageBlockPanel = new ImageBlockPanel();
 		rightPanel.add(imageBlockPanel);
-		//rightPanel.add(iPanel);
 		add(rightPanel, BorderLayout.EAST);
 	}
 
 	private JMenuBar prepareMenus() {
 		jmb = new JMenuBar();
-		
-		createFileMenu();
-		
-		createSearchMenu();
-		
-		createFamilyMenu(); 
 
-		createMeasureMenu(); 
-		 
-		createPathologyMenu(); 
+		createFileMenu();
+		createSearchMenu();
+		createFamilyMenu();
+		createMeasureMenu();
+		createPathologyMenu();
+
+		// NEW: Dental menu like Pathology
+		createDentalMenu();
 
 		createCatalogMenu();
-		
-		createAnalyticsMenu(); 
+		createAnalyticsMenu();
+		createWindowMenu();
+		createHelpMenu();
 
-        // building the Window menu
-		createWindowMenu(); 
-		
-        // building the Help menu
-		createHelpMenu(); 
-		
 		return jmb;
 	}
 
-	private void createCatalogMenu(){
+	private void createCatalogMenu() {
 		JMenu catalogMenu = new JMenu("Catalog");
 		JMenuItem jmItem = new JMenuItem("Entries By Founder");
-        jmItem.addActionListener(new ActionListener() {
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				JPanel chartPanel = new JPanel();
 				chartPanel.add(new JLabel(
 						new ImageIcon("images/EntriesByFounder.png")));
-		        JScrollPane scrollPane = new JScrollPane(chartPanel);
-		        cPanel.addTab("EntriesByFounder", scrollPane);
-		        cPanel.setSelectedIndex(cPanel.getTabCount()-1);
+				JScrollPane scrollPane = new JScrollPane(chartPanel);
+				cPanel.addTab("EntriesByFounder", scrollPane);
+				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
 			}
-        	
-        });
-        catalogMenu.add(jmItem);
-        jmb.add(catalogMenu);
+
+		});
+		catalogMenu.add(jmItem);
+		jmb.add(catalogMenu);
 	}
 
 	private void createAnalyticsMenu() {
-        JMenu analyticsMenu = new JMenu("Analytics"); 
-        JMenuItem jmItem = new JMenuItem("Measure vs. EAAD");
-        jmItem.addActionListener(new ActionListener() {
+		JMenu analyticsMenu = new JMenu("Analytics");
+		JMenuItem jmItem = new JMenuItem("Measure vs. EAAD");
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
-				//JPanel chartPanel = new SkullMeasurePanel().getChartPanel();
-				//new MainDriver().testXyPlotTab(tabbedPane);
-				// now using live selection
-				//new AnalyticsMgr(sMgr, bmMgr)
 				aMgr.setXyPlotMode(AnalyticsMgr.EAAD);
-				aMgr.buildXyPlotTab(cPanel); //testXyPlotTab(tabbedPane);
-				//MainDriver(bmMgr).testXyPlotTab(tabbedPane, 
-				//		sMgr.selectAnimals(), bmMgr.selectMeasures());
+				aMgr.buildXyPlotTab(cPanel);
 			}
-        	
-        });
-        analyticsMenu.add(jmItem);
-        
-		// Analytics with xy-plot with measure1 as X 
+
+		});
+		analyticsMenu.add(jmItem);
+
 		jmItem = new JMenuItem("Measure-1 as X");
-        jmItem.addActionListener(new ActionListener() {
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				aMgr.setXyPlotMode(AnalyticsMgr.X_IS_1);
-				aMgr.buildXyPlotTab(cPanel); //testXyPlotTab(tabbedPane);
+				aMgr.buildXyPlotTab(cPanel);
 			}
-        	
-        });
-        analyticsMenu.add(jmItem);
- 		jmb.add(analyticsMenu);
-        
-		// Analytics with xy-plot for modeling 
+
+		});
+		analyticsMenu.add(jmItem);
+		jmb.add(analyticsMenu);
+
 		jmItem = new JMenuItem("Line Fitting");
-        jmItem.addActionListener(new ActionListener() {
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				aMgr.setXyPlotMode(AnalyticsMgr.EAAD);
-				aMgr.buildXyPlotWithLineFitting(cPanel); //testXyPlotTab(tabbedPane);
+				aMgr.buildXyPlotWithLineFitting(cPanel);
 			}
-        	
-        });
-        analyticsMenu.add(jmItem);
-        
-		// Analytics with column chart for categorical measures 
+
+		});
+		analyticsMenu.add(jmItem);
+
 		jmItem = new JMenuItem("Column Chart");
-        jmItem.addActionListener(new ActionListener() {
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				aMgr.buildColumnChartTab(cPanel); 
+				aMgr.buildColumnChartTab(cPanel);
 			}
-        	
-        });
-        analyticsMenu.add(jmItem);
- 		
- 		// add dynamic head count line chart, using the SubjectHeadCounter
+
+		});
+		analyticsMenu.add(jmItem);
+
 		jmItem = new JMenuItem("Headcount Line Chart");
-        jmItem.addActionListener(new ActionListener() {
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				aMgr.buildHeadcountChartTab(cPanel);
 			}
-        	
-        });
-        analyticsMenu.add(jmItem);
- 		
- 		// add head count trend chart
+
+		});
+		analyticsMenu.add(jmItem);
+
 		jmItem = new JMenuItem("Head Count Trend");
-        jmItem.addActionListener(new ActionListener() {
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				JPanel chartPanel = new JPanel();
 				chartPanel.add(new JLabel(
 						new ImageIcon("images/CSHeadCountBreakdown.png")));
-		        JScrollPane scrollPane = new JScrollPane(chartPanel);
+				JScrollPane scrollPane = new JScrollPane(chartPanel);
 				cPanel.addTab("CS Head Count By Year", scrollPane);
-				cPanel.setSelectedIndex(cPanel.getTabCount()-1);
+				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
 			}
-        	
-        });
-        analyticsMenu.add(jmItem);
+
+		});
+		analyticsMenu.add(jmItem);
 	}
 
 	private void createMeasureMenu() {
-        JMenu searchMenu = new JMenu("Measure"); 
-        JMenuItem jmItem = new JMenuItem("Select Measure");
-        jmItem.addActionListener(new ActionListener() {
+		JMenu searchMenu = new JMenu("Measure");
+		JMenuItem jmItem = new JMenuItem("Select Measure");
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				cPanel.addTab("Select Measure", 
+				cPanel.addTab("Select Measure",
 						new MeasureSelectionPanel(boneMeasureDAO));
-				cPanel.setSelectedIndex(cPanel.getTabCount()-1);
+				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
 			}
-        	
-        });
-        searchMenu.add(jmItem);
-        //jmItem = new JMenuItem("Measure Keys");
+
+		});
+		searchMenu.add(jmItem);
+
 		JMenu keysSubmenu = new JMenu("Measure Keys");
 		loadMeasureKeyItems(keysSubmenu);
 		searchMenu.add(keysSubmenu);
-        searchMenu.add(jmItem);
-        
-        jmb.add(searchMenu);
+		searchMenu.add(jmItem);
+
+		jmb.add(searchMenu);
 	}
 
-    private void loadMeasureKeyItems(JMenu keysSubmenu) {
-    	
+	private void loadMeasureKeyItems(JMenu keysSubmenu) {
+
 		String[] keys = ProtocolImagePanel.getKeys();
 		String caption;
 		JMenuItem jmItem;
-		
-		
+
 		ActionListener keySelector = new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				ProtocolImagePanel keyPanel = 
+				ProtocolImagePanel keyPanel =
 						new ProtocolImagePanel(e.getActionCommand());
-		        cPanel.addTab(e.getActionCommand(), keyPanel);
-		        cPanel.setSelectedIndex(cPanel.getTabCount()-1);
+				cPanel.addTab(e.getActionCommand(), keyPanel);
+				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
 			}
 
-			
 		};
-		
-		for (int i=0; i<keys.length; i++) {
+
+		for (int i = 0; i < keys.length; i++) {
 			caption = keys[i];
 			jmItem = new JMenuItem(caption);
-			keysSubmenu.add(jmItem); 
+			keysSubmenu.add(jmItem);
 			jmItem.addActionListener(keySelector);
 		}
 
 	}
-    
-    private void createPathologyMenu() {
-    	JMenu jmPathology = new JMenu("Pathology");
-    	// The pathology menu lets you show a static image (based on behavior from the given v12 
-    	//	bundle *NOT* the given source code! they differ. not sure they're supposed to.)
-    	JMenuItem pathologyShowPhotos = new JMenuItem("Show Photos");
-    	
-    	pathologyShowPhotos.addActionListener(new ActionListener() {
-    		@Override
-    		public void actionPerformed(ActionEvent e) {
-    			openPathologyTab();
-    		}
-    	});
-    	// add menu item to pathology menu
-    	jmPathology.add(pathologyShowPhotos);
-    	// add pathology menu to global menu bar
-    	jmb.add(jmPathology);
-    }
-    
-    private void openPathologyTab() {
-    	
-    	String tabLabel = "Pathology: Bone Defect";
-    	// Used to check if the tab is already open. 
-    	int idx = cPanel.indexOfTab(tabLabel);
-    	
-    	// if it is open already (i.e., it exists; does not return -1) then switch to it
-    	if (idx != -1) {
-    		cPanel.setSelectedIndex(idx);
-    		return;
-    	}
-    	
-    	// else, we have to make it. 
-    	JPanel imagePanel = new JPanel(new BorderLayout());
-    	// this image is pulled from the bundle; it's 3036 x 2388 native resolution so we have to scale it
-    	ImageIcon OGIcon = new ImageIcon("images/#1229 Femur.jpg");
-    	Image OGImage = OGIcon.getImage();
-    	
-    	int targetWidth = 900;
-    	int targetHeight = 700;
-    	
-    	Image scaledImage = OGImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
-    	JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
-   
-    	// center image within label
-    	imageLabel.setHorizontalAlignment(JLabel.CENTER);
-    	// center label within panel
-    	imagePanel.add(imageLabel, BorderLayout.CENTER);
-    	
-    	JScrollPane scrollPane = new JScrollPane(imagePanel);
-    	cPanel.addTab(tabLabel, scrollPane);
-    	// switch focus to newly created tab
-    	cPanel.setSelectedComponent(scrollPane);
-    	
-    }
+
+	private void createPathologyMenu() {
+		JMenu jmPathology = new JMenu("Pathology");
+		JMenuItem pathologyShowPhotos = new JMenuItem("Show Photos");
+
+		pathologyShowPhotos.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				openPathologyTab();
+			}
+		});
+
+		jmPathology.add(pathologyShowPhotos);
+		jmb.add(jmPathology);
+	}
+
+	private void openPathologyTab() {
+
+		String tabLabel = "Pathology: Bone Defect";
+		int idx = cPanel.indexOfTab(tabLabel);
+
+		if (idx != -1) {
+			cPanel.setSelectedIndex(idx);
+			return;
+		}
+
+		JPanel imagePanel = new JPanel(new BorderLayout());
+
+		ImageIcon OGIcon = new ImageIcon("images/#1229 Femur.jpg");
+		Image OGImage = OGIcon.getImage();
+
+		int targetWidth = 900;
+		int targetHeight = 700;
+
+		Image scaledImage = OGImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+		JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
+
+		imageLabel.setHorizontalAlignment(JLabel.CENTER);
+		imagePanel.add(imageLabel, BorderLayout.CENTER);
+
+		JScrollPane scrollPane = new JScrollPane(imagePanel);
+		cPanel.addTab(tabLabel, scrollPane);
+		cPanel.setSelectedComponent(scrollPane);
+
+	}
+
+	// -------------------------
+	// NEW: Dental menu + tab
+	// -------------------------
+	private void createDentalMenu() {
+		JMenu jmDental = new JMenu("Dental");
+		JMenuItem dentalShow = new JMenuItem("Show Tooth");
+
+		dentalShow.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				openDentalTab();
+			}
+		});
+
+		jmDental.add(dentalShow);
+		jmb.add(jmDental);
+	}
+
+	private void openDentalTab() {
+
+		String tabLabel = "Dental: Tooth";
+		int idx = cPanel.indexOfTab(tabLabel);
+
+		if (idx != -1) {
+			cPanel.setSelectedIndex(idx);
+			return;
+		}
+
+		JPanel imagePanel = new JPanel(new BorderLayout());
+
+		// make sure the filename matches EXACTLY
+		ImageIcon OGIcon = new ImageIcon("images/#3316 Tooth.JPG");
+		Image OGImage = OGIcon.getImage();
+
+		int targetWidth = 900;
+		int targetHeight = 700;
+
+		Image scaledImage = OGImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
+		JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
+
+		imageLabel.setHorizontalAlignment(JLabel.CENTER);
+		imagePanel.add(imageLabel, BorderLayout.CENTER);
+
+		JScrollPane scrollPane = new JScrollPane(imagePanel);
+		cPanel.addTab(tabLabel, scrollPane);
+		cPanel.setSelectedComponent(scrollPane);
+	}
 
 	private void createSearchMenu() {
-        JMenu searchMenu = new JMenu("Search"); 
-        JMenuItem jmItem = new JMenuItem("Select Animal");
-        jmItem.addActionListener(new ActionListener() {
+		JMenu searchMenu = new JMenu("Search");
+		JMenuItem jmItem = new JMenuItem("Select Animal");
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				/*
-				* a placeholder
-				JPanel p = new JPanel();
-				JLabel l = new JLabel(new ImageIcon("images/monkyIcon.png"));
-				p.add(l);
-				cPanel.addTab("Animal Selection", p);
-				*/
-				cPanel.addTab("Animal Selection", 
+				cPanel.addTab("Animal Selection",
 						new AnimalSetSelectionPanel(sMgr));
-				cPanel.setSelectedIndex(cPanel.getTabCount()-1);
+				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
 			}
-			
+
 		});
-        searchMenu.add(jmItem);
-        
-        // not doing anything yet 
-        jmItem = new JMenuItem("Select Catalog");
-        searchMenu.add(jmItem);
-        
-        // test MeasureTablePanel for now Mar-6-24
-        jmItem = new JMenuItem("Select Measure");
-        jmItem.addActionListener(new ActionListener() {
+		searchMenu.add(jmItem);
+
+		jmItem = new JMenuItem("Select Catalog");
+		searchMenu.add(jmItem);
+
+		jmItem = new JMenuItem("Select Measure");
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				mPanel.showTableCard();
 			}
-			
+
 		});
-        searchMenu.add(jmItem);
-        jmb.add(searchMenu);
+		searchMenu.add(jmItem);
+		jmb.add(searchMenu);
 	}
 
 	private void createWindowMenu() {
 		JMenu jmWindow = new JMenu("Window");
-		
+
 		JMenuItem jmItem = new JMenuItem("Close Current Window");
 		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int selectedIndex = cPanel.getSelectedIndex();
-				if( ! cPanel.getTitleAt(selectedIndex).equals("Welcome") )
+				if (!cPanel.getTitleAt(selectedIndex).equals("Welcome"))
 					cPanel.removeTabAt(selectedIndex);
-				}
-			
+			}
+
 		});
 		jmWindow.add(jmItem);
-		
+
 		jmb.add(jmWindow);
 	}
 
 	private void createHelpMenu() {
 		JMenu jmHelp = new JMenu("Help");
-		
+
 		JMenuItem jmItem = new JMenuItem("About CSViewer");
 		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// update version number ==> to v1.1 now!
-				JDialog aboutBox = new JDialog(CsvV2MainWindow.this, 
+				JDialog aboutBox = new JDialog(CsvV2MainWindow.this,
 						"About CS Viewer - Version 2.0");
 				aboutBox.setIconImage(CS_VIEWER_LOGO);
-				
-				//arrangeAboutBox(aboutBox);
+
 				arrangeAboutBoxWithImage(aboutBox);
 				aboutBox.pack();
 				aboutBox.setVisible(true);
@@ -453,9 +450,9 @@ public class CsvV2MainWindow extends JFrame {
 			private void arrangeAboutBoxWithImage(JDialog aboutBox) {
 				JButton okButton = new JButton("OK");
 				JPanel okButtonPanel = new JPanel();
-				okButtonPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));				
+				okButtonPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 				okButtonPanel.add(okButton);
-				//okButton.setAlignmentX(JPanel.RIGHT_ALIGNMENT);
+
 				okButton.addActionListener(new ActionListener() {
 
 					@Override
@@ -463,33 +460,29 @@ public class CsvV2MainWindow extends JFrame {
 						aboutBox.setVisible(false);
 						aboutBox.dispose();
 					}
-					
+
 				});
-				
+
 				aboutBox.setLayout(new BorderLayout());
-				//aboutBox.setLayout(new BoxLayout(aboutBox, BoxLayout.X_AXIS));
 				ImageIcon flashIcon = new ImageIcon("images/AboutBoxNoVersion.png");
 				aboutBox.add(new JLabel(flashIcon), BorderLayout.CENTER);
 				aboutBox.add(okButtonPanel, BorderLayout.SOUTH);
 			}
-        	
-        });
+
+		});
 		jmHelp.add(jmItem);
-		
-		// adding acknowledge page
+
 		jmItem = new JMenuItem("Acknowledgements");
 		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// update version number ==> to v1.1 now!
-				JDialog ackBox = new JDialog(CsvV2MainWindow.this, 
+				JDialog ackBox = new JDialog(CsvV2MainWindow.this,
 						"CSViewer - Acknowledgements");
 				ackBox.setIconImage(CS_VIEWER_LOGO);
 				try {
 					ackBox.add(new AcknowledgementPanel());
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				ackBox.pack();
@@ -497,8 +490,8 @@ public class CsvV2MainWindow extends JFrame {
 				ackBox.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 				ackBox.setLocationRelativeTo(CsvV2MainWindow.this);
 			}
-        	
-        });
+
+		});
 		jmHelp.add(jmItem);
 
 		jmb.add(jmHelp);
@@ -506,7 +499,7 @@ public class CsvV2MainWindow extends JFrame {
 
 	private void createFamilyMenu() {
 		JMenu jmFamily = new JMenu("Family");
-		
+
 		JMenuItem jmItem = new JMenuItem("Matril Tree");
 		jmItem.addActionListener(new ActionListener() {
 
@@ -516,11 +509,12 @@ public class CsvV2MainWindow extends JFrame {
 				CSTreePanel maTreePanel = new CSTreePanel(maTree,
 						CsvV2MainWindow.this);
 				cPanel.addTab("Matril", maTreePanel);
-				cPanel.setSelectedIndex(cPanel.getTabCount()-1);
+				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
 			}
-			
+
 		});
 		jmFamily.add(jmItem);
+
 		jmItem = new JMenuItem("Patril Tree");
 		jmItem.addActionListener(new ActionListener() {
 
@@ -528,135 +522,122 @@ public class CsvV2MainWindow extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				pTreeDao = new PatrilTreeDAO(mTreeDao);
 				JTree paTree = new JTree(pTreeDao.getPaTreeRoot());
-				CSTreePanel paTreePanel = new CSTreePanel(paTree, 
+				CSTreePanel paTreePanel = new CSTreePanel(paTree,
 						CsvV2MainWindow.this);
 				cPanel.addTab("Patril", paTreePanel);
-				cPanel.setSelectedIndex(cPanel.getTabCount()-1);
+				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
 			}
-			
+
 		});
 		jmFamily.add(jmItem);
 		jmb.add(jmFamily);
-        jmItem = new JMenuItem("Show Path");
-        jmItem.addActionListener(new ActionListener() {
+
+		jmItem = new JMenuItem("Show Path");
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
 				String typeAndNode = JOptionPane.showInputDialog(
-						CsvV2MainWindow.this, 
-						"mORp:AnimalId", 
-						"Select tree type (m/p) and node (AnimalId)", 
+						CsvV2MainWindow.this,
+						"mORp:AnimalId",
+						"Select tree type (m/p) and node (AnimalId)",
 						JOptionPane.INFORMATION_MESSAGE);
 				JTree tree;
 				char treeType = typeAndNode.charAt(0);
 				String animalId = typeAndNode.split(":")[1].trim();
 				String tabLabel;
-				//FamilyTreeMgr mgr = new FamilyTreeMgr();
+
 				if (treeType == 'm' || treeType == 'M') {
 					tree = new JTree(
 							CsvV2MainWindow.this.mTreeDao.getMaTreeRoot());
 					tabLabel = "Matril-" + animalId;
-				}
-				else {
+				} else {
 					tree = new JTree(
 							CsvV2MainWindow.this.pTreeDao.getPaTreeRoot());
 					tabLabel = "Patril-" + animalId;
 				}
 				JPanel p = new CSTreePanel(tree, CsvV2MainWindow.this);
 				cPanel.addTab(tabLabel, p);
-				cPanel.setSelectedIndex(cPanel.getTabCount()-1);
-				//addSelectionListener(tree);
-				
-				synchronized(p.getTreeLock()) {
+				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
+
+				synchronized (p.getTreeLock()) {
 					p.validate();
 				}
-				
+
 				tree.setExpandsSelectedPaths(true);
-				//DefaultMutableTreeNode node = mgr.getTestNode();
 				String id = typeAndNode.split(":")[1].trim();
-				//DefaultMutableTreeNode node = mgr.getMatrilTreeNodeById("i69G3");
 				DefaultMutableTreeNode node;
-				if (treeType == 'm' || treeType == 'M') 
+				if (treeType == 'm' || treeType == 'M')
 					node = CsvV2MainWindow.this.mTreeDao.getTreeNodeById(id);
 				else
 					node = CsvV2MainWindow.this.pTreeDao.getTreeNodeById(id);
+
 				DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
 				tree.setSelectionPath(new TreePath(model.getPathToRoot(node)));
 			}
-        	
-        });
-        jmFamily.add(jmItem);
-        
-        jmItem = new JMenuItem("Show Kinship Tree");
-        jmItem.addActionListener(new ActionListener() {
+
+		});
+		jmFamily.add(jmItem);
+
+		jmItem = new JMenuItem("Show Kinship Tree");
+		jmItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				String animalTattoo = JOptionPane.showInputDialog(
-						CsvV2MainWindow.this, 
-						"Animal tattoo please...", 
-						"Show Kinship Tree for Animal", 
+						CsvV2MainWindow.this,
+						"Animal tattoo please...",
+						"Show Kinship Tree for Animal",
 						JOptionPane.INFORMATION_MESSAGE);
 				if (!animalTattoo.startsWith("\""))
 					animalTattoo = "\"" + animalTattoo + "\"";
-				
+
 				KinshipGraphEditor kgEd = new KinshipGraphEditor();
 				kgEd.buildGraphforAnimalTopDown(animalTattoo, 3, true);
-				//kgEd.buildGraphforAnimal(animalTattoo, 3, true);
-				
+
 				JFrame frame = new CsKinshipTreeFrame(kgEd.getKinshipGraph());
-				// new GraphFrame(kgEd.getKinshipGraph());
 				frame.setTitle("CSViewer - Kinship Tree Display");
-		    	frame.setVisible(true);
+				frame.setVisible(true);
 			}
-        });
-        jmFamily.add(jmItem);
-        
-        jmItem = new JMenuItem("Family Interactions");
-        jmItem.addActionListener(new ActionListener() {
+		});
+		jmFamily.add(jmItem);
+
+		jmItem = new JMenuItem("Family Interactions");
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				JPanel chartPanel = new JPanel();
 				chartPanel.add(new JLabel(
 						new ImageIcon("images/FamilyInteractions.png")));
-		        JScrollPane scrollPane = new JScrollPane(chartPanel);
-		        cPanel.addTab("Family Interactions", scrollPane);
-		        cPanel.setSelectedIndex(cPanel.getTabCount()-1);
+				JScrollPane scrollPane = new JScrollPane(chartPanel);
+				cPanel.addTab("Family Interactions", scrollPane);
+				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
 			}
-        	
-        });
-        jmFamily.add(jmItem);
-        
-        // add a separate area for the Toggle Code item
-        jmFamily.addSeparator();
-        jmItem = new JMenuItem("Show Tattoo");
-        jmItem.addActionListener(new ActionListener() {
+
+		});
+		jmFamily.add(jmItem);
+
+		jmFamily.addSeparator();
+
+		jmItem = new JMenuItem("Show Tattoo");
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				/*
-				JPanel currPanel = (JPanel) cPanel.getSelectedComponent();
-				if (currPanel instanceof CSTreePanel) {
-					CSTreePanel treePanel = (CSTreePanel)currPanel;
-					treePanel.toggleUnicodeOption();
-					//treePanel.reValidateAndRepaint();					
-				}
-				*/
-				JOptionPane.showConfirmDialog(CsvV2MainWindow.this, 
-						"Please apply for approval from CPRC", 
-						"Notice", JOptionPane.INFORMATION_MESSAGE, 
+				JOptionPane.showConfirmDialog(CsvV2MainWindow.this,
+						"Please apply for approval from CPRC",
+						"Notice", JOptionPane.INFORMATION_MESSAGE,
 						JOptionPane.OK_OPTION);
 			}
-        	
-        });
-        jmFamily.add(jmItem);
-  	}
+
+		});
+		jmFamily.add(jmItem);
+	}
 
 	private void createFileMenu() {
 		JMenu jmFile = new JMenu("File");
 		JMenuItem jmItem = new JMenuItem("New");
-        jmItem.addActionListener(new ActionListener() {
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -664,29 +645,27 @@ public class CsvV2MainWindow extends JFrame {
 					pMgr = new ProjectMgr(CsvV2MainWindow.this);
 				pMgr.createProjectFolder();
 			}
-        	
-        });
+
+		});
 
 		jmFile.add(jmItem);
 		jmb.add(jmFile);
-        
-        // for displaying dataset as selected in TableView panel
-        jmItem = new JMenuItem("Preview");
-        jmItem.addActionListener(new ActionListener() {
+
+		jmItem = new JMenuItem("Preview");
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JPanel p = new DataTableViewPanel(mTreeDao);
 				cPanel.addTab("Preview Dataset", p);
-				cPanel.setSelectedIndex(cPanel.getTabCount()-1);
+				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
 			}
-        	
-        });
-        jmFile.add(jmItem);
-        
-        // for saving a data set file to the project folder
-        jmItem = new JMenuItem("Save");
-        jmItem.addActionListener(new ActionListener() {
+
+		});
+		jmFile.add(jmItem);
+
+		jmItem = new JMenuItem("Save");
+		jmItem.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -694,25 +673,24 @@ public class CsvV2MainWindow extends JFrame {
 					pMgr = new ProjectMgr(CsvV2MainWindow.this);
 				pMgr.saveSelectedDataset();
 			}
-        	
-        });
-        jmFile.add(jmItem);
-        jmItem = new JMenuItem("Exit");
-        jmFile.add(jmItem);
+
+		});
+		jmFile.add(jmItem);
+
+		jmItem = new JMenuItem("Exit");
+		jmFile.add(jmItem);
 	}
 
 	private void initMainPanel() {
-        contentPane = new JPanel(new BorderLayout());
-        contentPane.setOpaque(true);
- 
-        JPanel output = new CsHtmlWithNaviPanel(null, 
+		contentPane = new JPanel(new BorderLayout());
+		contentPane.setOpaque(true);
+
+		JPanel output = new CsHtmlWithNaviPanel(null,
 				"images/CSIsland.png");
-        JScrollPane scrollPane = new JScrollPane(output);
- 
-        //Add the text area to the content pane.
-        cPanel.addTab("Welcome", scrollPane);       
-        
-        contentPane.add(cPanel);
+		JScrollPane scrollPane = new JScrollPane(output);
+
+		cPanel.addTab("Welcome", scrollPane);
+		contentPane.add(cPanel);
 	}
 
 	public static void main(String[] args) {
@@ -724,10 +702,10 @@ public class CsvV2MainWindow extends JFrame {
 	}
 
 	public void updateSummaryData(String qCode) {
-		String[] founderInfo = {qCode, "F", "", "", qCode, 
-				"", "", "", "", "", "", ""};
+		String[] founderInfo = { qCode, "F", "", "", qCode,
+				"", "", "", "", "", "", "" };
 		bPanel.editData(founderInfo);
-		repaint();	
+		repaint();
 	}
 
 	public BoneMeasureDAO getBoneMeasureDAO() {
@@ -737,24 +715,21 @@ public class CsvV2MainWindow extends JFrame {
 	public void updateMeasureData(String unicode) {
 		mPanel.editTable(this.boneMeasureDAO.
 				getMeasureForUnicode(unicode));
-		repaint();	
+		repaint();
 	}
 
 	public static void startCSViewer() {
-       //Schedule a job for the event dispatch thread:
-       //creating and showing this application's GUI.
-       SwingUtilities.invokeLater(new Runnable(){
-           public void run(){
-               //Turn off metal's use of bold fonts
-        	   UIManager.put("swing.boldMetal", Boolean.TRUE);
-               new CsvV2MainWindow();
-           }
-       });
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				UIManager.put("swing.boldMetal", Boolean.TRUE);
+				new CsvV2MainWindow();
+			}
+		});
 	}
 
 	public SearchMgr getSearchMgr() {
 		return sMgr;
 	}
-
 }
+
 
