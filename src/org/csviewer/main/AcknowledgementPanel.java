@@ -1,7 +1,13 @@
 package org.csviewer.main;
 
+import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.File;
@@ -11,9 +17,12 @@ import java.util.Scanner;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -58,7 +67,8 @@ public class AcknowledgementPanel extends JPanel {
 		this.setPreferredSize(new Dimension(600, 450));
 		this.setLayout(null);
 		JPanel innerPanel = new JPanel();
-		innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
+		//innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS));
+		innerPanel.setLayout(new GridBagLayout());
 		innerPanel.add(jtaAck);
 		JScrollPane jsp = new JScrollPane(jtaAck, 
 			    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
@@ -76,8 +86,48 @@ public class AcknowledgementPanel extends JPanel {
 			JButton jbtnCheckAndContinue = new JButton("Continue");
 			jbtnCheckAndContinue.addActionListener(e -> {
 			    System.out.println("Checked and Continue...");
-			    c.dispose();
+			    
+			    Container parent = AcknowledgementPanel.this.getParent();
+
+			    while (parent != null && !(parent instanceof JLayeredPane)) {
+			        parent = parent.getParent();
+			    }
+
+			    if (parent != null) {
+			        JLayeredPane layeredPane = (JLayeredPane) parent;
+			        layeredPane.remove(AcknowledgementPanel.this);
+			        
+			        JPanel loading = new JPanel() {
+			        	
+			        	ImageIcon loadingIcon = new ImageIcon("images/Loading Thing.png");
+			    		Image loadingImage = loadingIcon.getImage();
+			        	
+			        	@Override
+			        	protected void paintComponent(Graphics g) {
+			        		
+			        		super.paintComponent(g);
+			        		
+			        		
+			        		if (loadingImage != null) {
+			        			
+			        			g.drawImage(loadingImage, 0, 0, this);
+			        			
+			        		}
+			        		
+			        		
+			        	}
+			        	
+			        };
+			        
+			        loading.setBounds(100, 400, 980, 101);
+			        layeredPane.add(loading, Integer.valueOf(2));
+			        layeredPane.revalidate();
+			        layeredPane.repaint();
+			    }
+			    
+			    
 			    CsvV2MainWindow.startCSViewer();
+			    
 			});
 			jbtnCheckAndContinue.setBounds(100, 410, 100, 20);
 			this.add(jbtnCheckAndContinue);
@@ -103,22 +153,85 @@ public class AcknowledgementPanel extends JPanel {
 	
 	static void startCSViewer() throws IOException {
 		
+		
         JFrame frameless = new JFrame("CSViewer - Acknowledgement");
+        
+        
+        
         // Make the frame undecorated (no title bar, borders, etc.)
+        
         frameless.setUndecorated(true);
         frameless.setIconImage(CsvV2MainWindow.CS_VIEWER_LOGO);
-
-        // Add the image to a JLabel and add the JLabel to the frame
-        frameless.add(new AcknowledgementPanel(frameless));
-
-        // Adjust the size of the frame to fit its contents
-        frameless.pack();
         
+        JLayeredPane layers = new JLayeredPane();
+        
+        layers.setLayout(null);
+        layers.setPreferredSize(new Dimension(1190, 600));
+        
+        // Add the image to a JLabel and add the JLabel to the frame
+        
+        JPanel grayedOut = new JPanel() {
+        	
+        	ImageIcon goImage = new ImageIcon("images/CSViewer Blurred.png");
+    		Image image = goImage.getImage();
+        	
+        	@Override
+        	protected void paintComponent(Graphics g) {
+        		
+        		super.paintComponent(g);
+        		
+        		
+        		if (image != null) {
+        			
+        			g.drawImage(image, 0, 0, this);
+        			
+        		}
+        		
+        		
+        	}
+        	
+        	@Override
+        	public Dimension getPreferredSize() {
+        		
+        		return image == null ? super.getPreferredSize() : new Dimension(image.getWidth(frameless), image.getHeight(frameless));
+        		
+        	}
+        	
+        };
+        
+        AcknowledgementPanel ack = new AcknowledgementPanel(frameless);
+        
+        Dimension ackSize = ack.getPreferredSize();
+        Dimension graySize = grayedOut.getPreferredSize();
+        Dimension layerSize = layers.getPreferredSize();
+
+        int x = (layerSize.width - ackSize.width) / 2;
+        int y = (layerSize.height - ackSize.height) / 2;
+
+        ack.setBounds(x, y, ackSize.width, ackSize.height);
+        
+        int x2 = (layerSize.width - graySize.width) /2;
+        int y2 = (layerSize.height - graySize.height) /2; 
+
+        grayedOut.setBounds(x2, y2, graySize.width, graySize.height);
+        
+        // Add the image to a JLabel and add the JLabel to the frame
+        
+        frameless.add(layers);
+        
+        layers.add(grayedOut, Integer.valueOf(0));
+        layers.add(ack, Integer.valueOf(1));
+        layers.setOpaque(false);
+        
+        // Adjust the size of the frame to fit its contents
+        
+        frameless.pack();
+       
         // Set the frame to be visible & show it in the middle of screen
         frameless.setLocationRelativeTo(null);
         frameless.setVisible(true);
-      
-	}
+        
+    }
 
 	private String loadHtml() {
 		String htmlFile = "html/Acknowledgement.html";
