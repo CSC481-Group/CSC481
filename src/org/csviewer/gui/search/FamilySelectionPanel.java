@@ -119,8 +119,9 @@ public class FamilySelectionPanel extends JPanel {
 				System.out.println("SearchMgr called: " + 
 						getSelectFamilies().length + " families (" + 						
 						sMgr.selectedSubjectCount() + ")");
-				System.out.println(fSelectionModel.elements().nextElement() +
-						"(" + fSelectionModel.getSize() + ")");
+				if (fSelectionModel.getSize() > 0)
+					System.out.println(fSelectionModel.elements().nextElement() +
+							"(" + fSelectionModel.getSize() + ")");
 			}
 			
 		});		controlPanel.add(clearButton);
