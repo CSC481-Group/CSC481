@@ -103,4 +103,12 @@ public class SearchMgr {
 	public int getEndSeason() {
 		return this.endSeason;
 	}
+
+	public String[] getSelectFamilies() {
+		return this.selectFamilies;
+	}
+
+	public char getSex() {
+		return this.sex;
+	}
 }
