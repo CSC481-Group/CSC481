@@ -2,6 +2,7 @@ package org.csviewer.gui;
 
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +16,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-import org.csviewer.dao.FamilyInfoDAO;
+import org.csviewer.mgr.SearchMgr;
 import org.csviewer.mgr.SubjectHeadCounter;
 import org.csviewer.mgr.SubjectRecordMgr;
 
@@ -28,16 +29,19 @@ public class DataTableViewPanel extends JPanel {
 	private DefaultTableModel model = new DefaultTableModel();
 	private JTable table = new JTable();
 	
-	private FamilyInfoDAO fInfoDao;
+	private SearchMgr sMgr;
+	private Runnable saveAction;
 
-	public DataTableViewPanel(FamilyInfoDAO fInfoDao) {
-		this.fInfoDao = fInfoDao;
+	public DataTableViewPanel(SearchMgr sMgr, Runnable saveAction) {
+		this.sMgr = sMgr;
+		this.saveAction = saveAction;
 		
 		paramPanel = new JPanel();
-		paramPanel.setPreferredSize(new Dimension(200, 280));
 		// use form layout from Horstmann's text
 		//paramPanel.setLayout(new FormLayout()); 
 		initParamPanel();
+		paramPanel.setPreferredSize(new Dimension(200, 280));
+		paramPanel.revalidate();
 		
 		buttonPanel = new JPanel();
 		buttonPanel.setPreferredSize(new Dimension(200, 150));
@@ -66,16 +70,14 @@ public class DataTableViewPanel extends JPanel {
 
 	private DataFrame<Object> prepareHeadcount() {
 		DataFrame<Object> hdCnt = new DataFrame<Object>();
-		SubjectRecordMgr sMgr = new SubjectRecordMgr();		
-		//DataFrame<Object> df = sMgr.getSriDataframe();		
-		//System.out.println(df.length() + "x" + df.size());
+		SubjectRecordMgr srMgr = new SubjectRecordMgr();
 
-		SubjectHeadCounter cntr = new SubjectHeadCounter(fInfoDao);
-		//String cutoffDate = "07/01";
-		String cutoffDate = "Jul-01";	// should get from the same counter
-		int startYear=1955, endYear = 2018;
-		int[][] headcountByYear = cntr.calculateHeadCount(cutoffDate, 
-				startYear, endYear);
+		String cutoffDate = sMgr.getCutoffDate();
+		int startYear = sMgr.getBeginSeason();
+		int endYear = sMgr.getEndSeason();
+		int minAge = sMgr.getMinAge();
+		int[][] headcountByYear = sMgr.getHeadcountForRange(cutoffDate,
+				startYear, endYear, minAge);
 		
 		int[][] hcntTransposed = transpose(headcountByYear);
 		System.out.println("Number of years = " + hcntTransposed[0].length);
@@ -119,15 +121,29 @@ public class DataTableViewPanel extends JPanel {
 
 	private void initButtonPanel() {
 		JButton jbtnSave = new JButton("Save");
+		jbtnSave.addActionListener(e -> saveAction.run());
 		buttonPanel.add(jbtnSave);
 		buttonPanel.setBorder(
 				BorderFactory.createTitledBorder("Take Actions:"));
 	}
 
 	private void initParamPanel() {
-		// a placeholder for now
-		JLabel datasetParamLabel = new JLabel("All families selected");
-		paramPanel.add(datasetParamLabel);
+		String families = sMgr.getSelectFamilies() == null ? 
+				"All families selected" : 
+				String.join(", ", sMgr.getSelectFamilies());
+		String sex = "Sex: " + sMgr.getSex();
+		String seasons = "Seasons: " + sMgr.getBeginSeason() + " - " + sMgr.getEndSeason();
+		String cutoff = "Cutoff Date: " + sMgr.getCutoffDate();
+		String minAge = "Min Age: " + sMgr.getMinAge();
+		String count = "Subject Count: " + sMgr.selectedSubjectCount();
+
+		paramPanel.setLayout(new GridLayout(6, 1));
+		paramPanel.add(new JLabel(families));
+		paramPanel.add(new JLabel(sex));
+		paramPanel.add(new JLabel(seasons));
+		paramPanel.add(new JLabel(cutoff));
+		paramPanel.add(new JLabel(minAge));
+		paramPanel.add(new JLabel(count));
 		paramPanel.setBorder(
 				BorderFactory.createTitledBorder("Selection Parameters"));
 	}

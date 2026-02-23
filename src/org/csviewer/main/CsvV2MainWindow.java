@@ -656,7 +656,9 @@ public class CsvV2MainWindow extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JPanel p = new DataTableViewPanel(mTreeDao);
+				if (pMgr == null)
+					pMgr = new ProjectMgr(CsvV2MainWindow.this);
+				JPanel p = new DataTableViewPanel(sMgr, () -> pMgr.saveSelectedDataset());
 				cPanel.addTab("Preview Dataset", p);
 				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
 			}
