@@ -72,7 +72,7 @@ public class RegressionUtil {
 	    	genderLabelInDB = dao.getGenderByUnicode(unicode);
 	    	System.out.println("In RegrUtil: " + unicode + " is " + genderLabelInDB);
 	    	if (genderLabelInDB.equalsIgnoreCase(gender.substring(0, 1))) {
-	    		y4Gender.add(y, x);	// why switched order here!?
+	    		y4Gender.add(x, y);	// Un-switched order!
 		    	//System.out.println(x+","+y);
 	    	}
 	    }
@@ -194,11 +194,11 @@ public class RegressionUtil {
 	    		if (mcodeInDB == null || mcodeInDB.length() == 0 || 
 	    				mcodeInDB.equals("Prob wt ID") || 
 	    				mcodeInDB.equals("NONE"))
-		    		y4Mcode.add(y, x);	// why switched order here!?
+		    		y4Mcode.add(x, y);	// Un-switched order
 	    	}  		
 	    	else 
 	    		if (mcodeInDB.equalsIgnoreCase(mcode)) {
-	    		y4Mcode.add(y, x);	// why switched order here!?
+		    		y4Mcode.add(x, y);	// Un-switched order
 		    	//System.out.println(x+","+y);
 	    	}
 	    }
