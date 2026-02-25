@@ -125,6 +125,7 @@ public class CsvV2MainWindow extends JFrame {
 		createSearchMenu();
 		createFamilyMenu();
 		createMeasureMenu();
+		createImageMenu();
 		createPathologyMenu();
 
 		// NEW: Dental menu like Pathology
@@ -132,7 +133,7 @@ public class CsvV2MainWindow extends JFrame {
 
 		createCatalogMenu();
 		createAnalyticsMenu();
-		createWindowMenu();
+		//createWindowMenu();
 		createHelpMenu();
 
 		return jmb;
@@ -149,8 +150,7 @@ public class CsvV2MainWindow extends JFrame {
 				chartPanel.add(new JLabel(
 						new ImageIcon("images/EntriesByFounder.png")));
 				JScrollPane scrollPane = new JScrollPane(chartPanel);
-				cPanel.addTab("EntriesByFounder", scrollPane);
-				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
+				addClosableTab("EntriesByFounder", scrollPane);
 			}
 
 		});
@@ -228,13 +228,55 @@ public class CsvV2MainWindow extends JFrame {
 				chartPanel.add(new JLabel(
 						new ImageIcon("images/CSHeadCountBreakdown.png")));
 				JScrollPane scrollPane = new JScrollPane(chartPanel);
-				cPanel.addTab("CS Head Count By Year", scrollPane);
-				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
+				addClosableTab("CS Head Count By Year", scrollPane);
 			}
 
 		});
 		analyticsMenu.add(jmItem);
 	}
+
+	private void createImageMenu() {
+		JMenu jmImage = new JMenu("Image");
+
+		JMenuItem selectImage = new JMenuItem("Select Image");
+		selectImage.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				imageBlockPanel.testImagePanel();
+			}
+		});
+
+		JMenuItem copyImage = new JMenuItem("Copy Image");
+		copyImage.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				java.awt.Component comp = cPanel.getSelectedComponent();
+				java.awt.image.BufferedImage buffered = new java.awt.image.BufferedImage(
+					comp.getWidth(), comp.getHeight(), java.awt.image.BufferedImage.TYPE_INT_ARGB);
+				comp.paint(buffered.getGraphics());
+				java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+					new java.awt.datatransfer.Transferable() {
+						public java.awt.datatransfer.DataFlavor[] getTransferDataFlavors() {
+							return new java.awt.datatransfer.DataFlavor[]{
+								java.awt.datatransfer.DataFlavor.imageFlavor
+							};
+						}
+						public boolean isDataFlavorSupported(java.awt.datatransfer.DataFlavor flavor) {
+							return java.awt.datatransfer.DataFlavor.imageFlavor.equals(flavor);
+						}
+						public Object getTransferData(java.awt.datatransfer.DataFlavor flavor) {
+							return buffered;
+						}
+					}, null);
+					javax.swing.JOptionPane.showMessageDialog(CsvV2MainWindow.this, 
+						"Image copied to clipboard!");
+				}
+			});
+
+			jmImage.add(selectImage);
+			jmImage.add(copyImage);
+			jmb.add(jmImage);
+		}
 
 	private void createMeasureMenu() {
 		JMenu searchMenu = new JMenu("Measure");
@@ -243,9 +285,7 @@ public class CsvV2MainWindow extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				cPanel.addTab("Select Measure",
-						new MeasureSelectionPanel(boneMeasureDAO));
-				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
+				addClosableTab("Select Measure", new MeasureSelectionPanel(boneMeasureDAO));
 			}
 
 		});
@@ -271,8 +311,7 @@ public class CsvV2MainWindow extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				ProtocolImagePanel keyPanel =
 						new ProtocolImagePanel(e.getActionCommand());
-				cPanel.addTab(e.getActionCommand(), keyPanel);
-				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
+				addClosableTab(e.getActionCommand(), keyPanel);
 			}
 
 		};
@@ -326,9 +365,7 @@ public class CsvV2MainWindow extends JFrame {
 		imagePanel.add(imageLabel, BorderLayout.CENTER);
 
 		JScrollPane scrollPane = new JScrollPane(imagePanel);
-		cPanel.addTab(tabLabel, scrollPane);
-		cPanel.setSelectedComponent(scrollPane);
-
+		addClosableTab(tabLabel, scrollPane);
 	}
 
 	// -------------------------
@@ -375,8 +412,7 @@ public class CsvV2MainWindow extends JFrame {
 		imagePanel.add(imageLabel, BorderLayout.CENTER);
 
 		JScrollPane scrollPane = new JScrollPane(imagePanel);
-		cPanel.addTab(tabLabel, scrollPane);
-		cPanel.setSelectedComponent(scrollPane);
+		addClosableTab(tabLabel, scrollPane);
 	}
 
 	private void createSearchMenu() {
@@ -386,9 +422,7 @@ public class CsvV2MainWindow extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent evt) {
-				cPanel.addTab("Animal Selection",
-						new AnimalSetSelectionPanel(sMgr));
-				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
+				addClosableTab("Animal Selection", new AnimalSetSelectionPanel(sMgr));
 			}
 
 		});
@@ -427,6 +461,44 @@ public class CsvV2MainWindow extends JFrame {
 		jmWindow.add(jmItem);
 
 		jmb.add(jmWindow);
+	}
+
+	private void addClosableTab(String title, java.awt.Component content) {
+		cPanel.addTab(title, content);
+		int index = cPanel.getTabCount() - 1;
+
+		JPanel tabPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		tabPanel.setOpaque(false);
+		JLabel tabLabel = new JLabel(title + " ");
+		JButton closeButton = new JButton("x");
+		closeButton.setPreferredSize(new Dimension(20, 17));
+		closeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+		closeButton.setFocusPainted(false);
+		closeButton.setBorderPainted(false);
+		closeButton.setContentAreaFilled(false);
+		closeButton.setToolTipText("Close tab");
+		closeButton.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseEntered(java.awt.event.MouseEvent e) {
+				closeButton.setBorderPainted(true);
+				closeButton.setContentAreaFilled(true);
+			}
+			@Override
+			public void mouseExited(java.awt.event.MouseEvent e) {
+				closeButton.setBorderPainted(false);
+				closeButton.setContentAreaFilled(false);
+			}
+		});
+
+		closeButton.addActionListener(e -> {
+			int i = cPanel.indexOfTabComponent(tabPanel);
+			if (i != -1 && !cPanel.getTitleAt(i).equals("Welcome"))
+				cPanel.removeTabAt(i);
+		});
+		tabPanel.add(tabLabel);
+		tabPanel.add(closeButton);
+		cPanel.setTabComponentAt(index, tabPanel);
+		cPanel.setSelectedIndex(index);
 	}
 
 	private void createHelpMenu() {
@@ -508,8 +580,7 @@ public class CsvV2MainWindow extends JFrame {
 				JTree maTree = new JTree(mTreeDao.getMaTreeRoot());
 				CSTreePanel maTreePanel = new CSTreePanel(maTree,
 						CsvV2MainWindow.this);
-				cPanel.addTab("Matril", maTreePanel);
-				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
+				addClosableTab("Matril", maTreePanel);
 			}
 
 		});
@@ -524,8 +595,7 @@ public class CsvV2MainWindow extends JFrame {
 				JTree paTree = new JTree(pTreeDao.getPaTreeRoot());
 				CSTreePanel paTreePanel = new CSTreePanel(paTree,
 						CsvV2MainWindow.this);
-				cPanel.addTab("Patril", paTreePanel);
-				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
+				addClosableTab("Patril", paTreePanel);
 			}
 
 		});
@@ -557,8 +627,7 @@ public class CsvV2MainWindow extends JFrame {
 					tabLabel = "Patril-" + animalId;
 				}
 				JPanel p = new CSTreePanel(tree, CsvV2MainWindow.this);
-				cPanel.addTab(tabLabel, p);
-				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
+				addClosableTab(tabLabel, p);
 
 				synchronized (p.getTreeLock()) {
 					p.validate();
@@ -610,8 +679,7 @@ public class CsvV2MainWindow extends JFrame {
 				chartPanel.add(new JLabel(
 						new ImageIcon("images/FamilyInteractions.png")));
 				JScrollPane scrollPane = new JScrollPane(chartPanel);
-				cPanel.addTab("Family Interactions", scrollPane);
-				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
+				addClosableTab("Family Interactions", scrollPane);
 			}
 
 		});
@@ -659,8 +727,7 @@ public class CsvV2MainWindow extends JFrame {
 				if (pMgr == null)
 					pMgr = new ProjectMgr(CsvV2MainWindow.this);
 				JPanel p = new DataTableViewPanel(sMgr, () -> pMgr.saveSelectedDataset());
-				cPanel.addTab("Preview Dataset", p);
-				cPanel.setSelectedIndex(cPanel.getTabCount() - 1);
+				addClosableTab("Preview Dataset", p);
 			}
 
 		});
