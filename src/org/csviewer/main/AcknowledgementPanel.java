@@ -86,7 +86,9 @@ public class AcknowledgementPanel extends JPanel {
 			JButton jbtnCheckAndContinue = new JButton("Continue");
 			jbtnCheckAndContinue.addActionListener(e -> {
 			    System.out.println("Checked and Continue...");
-			    
+
+				/**
+				
 			    Container parent = AcknowledgementPanel.this.getParent();
 
 			    while (parent != null && !(parent instanceof JLayeredPane)) {
@@ -124,7 +126,8 @@ public class AcknowledgementPanel extends JPanel {
 			        layeredPane.revalidate();
 			        layeredPane.repaint();
 			    }
-			    
+
+				*//
 			    
 			    CsvV2MainWindow.startCSViewer();
 			    
@@ -250,4 +253,5 @@ public class AcknowledgementPanel extends JPanel {
 		}
 		return html;
 	}
+
 }
